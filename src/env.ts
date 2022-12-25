@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+export const SCHEMA_PATH = process.env.SCHEMA_PATH || "";
 export const DATABASE_PATH = process.env.DATABASE_PATH || "";
 export const HOSTNAME = process.env.HOSTNAME || "";
 export const ACCOUNT = process.env.ACCOUNT || "";

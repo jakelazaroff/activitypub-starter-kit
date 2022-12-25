@@ -2,10 +2,10 @@
   "name": "dumbo",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "build/index.js",
+  "type": "module",
   "scripts": {
-    "setup": "ts-node src/setup.ts",
-    "start": "ts-node src/index.ts"
+    "start": "ts-node --esm src/index.ts"
   },
   "author": "",
   "license": "ISC",
@@ -19,6 +19,7 @@
   "dependencies": {
     "better-sqlite3": "^8.0.1",
     "dotenv": "^16.0.3",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "node-fetch": "^3.3.0"
   }
 }
