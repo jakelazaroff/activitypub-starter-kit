@@ -6,8 +6,7 @@
 
     // build options
     "baseUrl": "src",
-    "noEmit": true,
-    "jsx": "react",
+    "outDir": "build",
 
     // module resolution
     "module": "esnext",
@@ -30,6 +29,6 @@
     "forceConsistentCasingInFileNames": true,
     "noUncheckedIndexedAccess": true
   },
-  "include": ["src/**/*", "radish.env.d.ts"],
-  "exclude": ["functions/**/*", "node_modules"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
 }

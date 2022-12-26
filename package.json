@@ -2,10 +2,12 @@
   "name": "dumbo",
   "version": "1.0.0",
   "description": "",
-  "main": "build/index.js",
+  "main": "./build/index.js",
   "type": "module",
   "scripts": {
-    "start": "ts-node --esm src/index.ts"
+    "dev": "ts-node --esm src/index.ts",
+    "build": "tsc",
+    "start": "node build/index.js"
   },
   "author": "",
   "license": "ISC",

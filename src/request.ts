@@ -15,7 +15,7 @@ export async function send(sender: string, recipient: string, message: object) {
   const digest = crypto.createHash("sha256").update(body).digest("base64");
   const d = new Date();
 
-  const key = crypto.createPrivateKey(PRIVATE_KEY);
+  const key = crypto.createPrivateKey(PRIVATE_KEY.toString());
   const data = [
     `(request-target): post ${fragment}`,
     `host: ${url.hostname}`,
