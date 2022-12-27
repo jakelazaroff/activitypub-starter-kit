@@ -2,8 +2,9 @@ import crypto from "node:crypto";
 
 import { is, omit, type } from "superstruct";
 import { Router } from "express";
+import basicAuth from "express-basic-auth";
 
-import { HOSTNAME } from "./env.js";
+import { ADMIN_PASSWORD, ADMIN_USERNAME, HOSTNAME } from "./env.js";
 import {
   createFollowing,
   createPost,
@@ -15,6 +16,10 @@ import { send } from "./request.js";
 import { Object } from "./types.js";
 
 export const admin = Router();
+
+if (ADMIN_USERNAME && ADMIN_PASSWORD) {
+  admin.use(basicAuth({ users: { [ADMIN_USERNAME]: ADMIN_PASSWORD } }));
+}
 
 admin.post("/create", async (req, res) => {
   const actor: string = req.app.get("actor");

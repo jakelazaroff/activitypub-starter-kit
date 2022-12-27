@@ -23,3 +23,6 @@ export const PRIVATE_KEY =
   process.env.PRIVATE_KEY ||
   keypair?.privateKey.export({ type: "pkcs8", format: "pem" }) ||
   "";
+
+export const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "";
+export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "";

@@ -8,6 +8,7 @@ specifiers:
   better-sqlite3: ^8.0.1
   dotenv: ^16.0.3
   express: ^4.18.2
+  express-basic-auth: ^1.2.1
   morgan: ^1.10.0
   node-fetch: ^3.3.0
   superstruct: ^1.0.3
@@ -18,6 +19,7 @@ dependencies:
   better-sqlite3: 8.0.1
   dotenv: 16.0.3
   express: 4.18.2
+  express-basic-auth: 1.2.1
   morgan: 1.10.0
   node-fetch: 3.3.0
   superstruct: 1.0.3
@@ -344,6 +346,12 @@ packages:
   /expand-template/2.0.3:
     resolution: {integrity: sha512-XYfuKMvj4O35f/pOXLObndIRvyQ+/+6AhODh+OKWj9S9498pHHn/IMszH+gt0fBCRWMNfk1ZSp5x3AifmnI2vg==}
     engines: {node: '>=6'}
+    dev: false
+
+  /express-basic-auth/1.2.1:
+    resolution: {integrity: sha512-L6YQ1wQ/mNjVLAmK3AG1RK6VkokA1BIY6wmiH304Xtt/cLTps40EusZsU1Uop+v9lTDPxdtzbFmdXfFO3KEnwA==}
+    dependencies:
+      basic-auth: 2.0.1
     dev: false
 
   /express/4.18.2:
