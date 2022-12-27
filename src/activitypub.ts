@@ -5,31 +5,34 @@ import { Router } from "express";
 import {
   createFollower,
   deleteFollower,
+  findPost,
   listFollowers,
+  listFollowing,
   listPosts,
+  updateFollowing,
 } from "./db.js";
 import { HOSTNAME, ACCOUNT, PUBLIC_KEY } from "./env.js";
 import { send, verify } from "./request.js";
 
-const ACTOR = `https://${HOSTNAME}/@${ACCOUNT}`;
-
 export const activitypub = Router();
 
-activitypub.get("/@:actor/outbox", async (req, res) => {
+activitypub.get("/:actor/outbox", async (req, res) => {
+  const actor: string = req.app.get("actor");
   if (req.params.actor !== ACCOUNT) return res.sendStatus(404);
 
-  const posts = listPosts();
+  const posts = listPosts().filter(
+    (post) => "type" in post.contents && post.contents.type === "Create"
+  );
 
   return res.contentType("application/activity+json").json({
     "@context": "https://www.w3.org/ns/activitystreams",
-    id: `${ACTOR}/outbox`,
+    id: `${actor}/outbox`,
     type: "OrderedCollection",
     totalItems: posts.length,
     orderedItems: posts.map((post) => ({
       ...post.contents,
-      id: post.uri,
-      type: post.type,
-      actor: ACTOR,
+      id: `${actor}/posts/${post.id}`,
+      actor,
       published: post.createdAt.toISOString(),
       to: ["https://www.w3.org/ns/activitystreams#Public"],
       cc: [],
@@ -37,12 +40,12 @@ activitypub.get("/@:actor/outbox", async (req, res) => {
   });
 });
 
-activitypub.post("/@:actor/inbox", async (req, res) => {
+activitypub.post("/:actor/inbox", async (req, res) => {
+  const actor: string = req.app.get("actor");
   if (req.params.actor !== ACCOUNT) return res.sendStatus(404);
 
   /** If the request successfully verifies against the public key, `from` is the actor who sent it. */
   let from = "";
-
   try {
     // verify the signed HTTP request
     from = await verify(req);
@@ -56,17 +59,13 @@ activitypub.post("/@:actor/inbox", async (req, res) => {
   // ensure that the verified actor matches the actor in the request body
   if (from !== body.actor) return res.sendStatus(401);
 
-  // check that the request is for the correct account
-  const [, name = ""] = req.path.match(/^\/(.*?)(\/.*)?$/) || [];
-  if (name !== ACCOUNT) return res.sendStatus(404);
-
   switch (body.type) {
     case "Follow": {
-      await send(ACTOR, body.actor, {
+      await send(actor, body.actor, {
         "@context": "https://www.w3.org/ns/activitystreams",
         id: `https://${HOSTNAME}/${crypto.randomUUID()}`,
         type: "Accept",
-        actor: ACTOR,
+        actor,
         object: body,
       });
 
@@ -75,7 +74,22 @@ activitypub.post("/@:actor/inbox", async (req, res) => {
     }
 
     case "Undo": {
-      deleteFollower({ actor: body.actor, uri: body.object.id });
+      if (body.object.type === "Follow") {
+        deleteFollower({ actor: body.actor, uri: body.object.id });
+      }
+
+      break;
+    }
+
+    case "Accept": {
+      if (body.object.type === "Follow") {
+        updateFollowing({
+          actor: body.actor,
+          uri: body.object.id,
+          confirmed: true,
+        });
+      }
+
       break;
     }
   }
@@ -83,7 +97,9 @@ activitypub.post("/@:actor/inbox", async (req, res) => {
   return res.sendStatus(204);
 });
 
-activitypub.get("/@:actor/followers", async (req, res) => {
+activitypub.get("/:actor/followers", async (req, res) => {
+  const actor: string = req.app.get("actor");
+
   if (req.params.actor !== ACCOUNT) return res.sendStatus(404);
   const page = req.query.page;
 
@@ -94,50 +110,56 @@ activitypub.get("/@:actor/followers", async (req, res) => {
   if (!page) {
     return res.json({
       "@context": "https://www.w3.org/ns/activitystreams",
-      id: `${ACTOR}/followers`,
+      id: `${actor}/followers`,
       type: "OrderedCollection",
       totalItems: followers.length,
-      first: `${ACTOR}/followers?page=1`,
+      first: `${actor}/followers?page=1`,
     });
   }
 
   return res.json({
     "@context": "https://www.w3.org/ns/activitystreams",
-    id: `${ACTOR}/followers?page=${page}`,
+    id: `${actor}/followers?page=${page}`,
     type: "OrderedCollectionPage",
-    partOf: `${ACTOR}/followers`,
+    partOf: `${actor}/followers`,
     totalItems: followers.length,
     orderedItems: followers.map((follower) => follower.actor),
   });
 });
 
-activitypub.get("/@:actor/following", async (req, res) => {
+activitypub.get("/:actor/following", async (req, res) => {
+  const actor: string = req.app.get("actor");
+
   if (req.params.actor !== ACCOUNT) return res.sendStatus(404);
   const page = req.query.page;
+
+  const following = listFollowing();
 
   res.contentType("application/activity+json");
 
   if (!page) {
     return res.json({
       "@context": "https://www.w3.org/ns/activitystreams",
-      id: `${ACTOR}/following`,
+      id: `${actor}/following`,
       type: "OrderedCollection",
-      totalItems: 0,
-      first: `${ACTOR}/following?page=1`,
+      totalItems: following.length,
+      first: `${actor}/following?page=1`,
     });
   }
 
   return res.json({
     "@context": "https://www.w3.org/ns/activitystreams",
-    id: `${ACTOR}/following?page=${page}`,
+    id: `${actor}/following?page=${page}`,
     type: "OrderedCollectionPage",
-    partOf: `${ACTOR}/following`,
-    totalItems: 0,
-    orderedItems: [],
+    partOf: `${actor}/following`,
+    totalItems: following.length,
+    orderedItems: following.map((follow) => follow.actor),
   });
 });
 
-activitypub.get("/@:actor", async (req, res) => {
+activitypub.get("/:actor", async (req, res) => {
+  const actor: string = req.app.get("actor");
+
   if (req.params.actor !== ACCOUNT) return res.sendStatus(404);
 
   return res.contentType("application/activity+json").json({
@@ -145,17 +167,30 @@ activitypub.get("/@:actor", async (req, res) => {
       "https://www.w3.org/ns/activitystreams",
       "https://w3id.org/security/v1",
     ],
-    id: ACTOR,
+    id: actor,
     type: "Person",
     preferredUsername: ACCOUNT,
-    inbox: `${ACTOR}/inbox`,
-    outbox: `${ACTOR}/outbox`,
-    followers: `${ACTOR}/followers`,
-    following: `${ACTOR}/following`,
+    inbox: `${actor}/inbox`,
+    outbox: `${actor}/outbox`,
+    followers: `${actor}/followers`,
+    following: `${actor}/following`,
     publicKey: {
-      id: `${ACTOR}#main-key`,
-      owner: ACTOR,
+      id: `${actor}#main-key`,
+      owner: actor,
       publicKeyPem: PUBLIC_KEY,
     },
+  });
+});
+
+activitypub.get("/:actor/posts/:id", async (req, res) => {
+  const actor: string = req.app.get("actor");
+  if (req.params.actor !== ACCOUNT) return res.sendStatus(404);
+
+  const post = findPost(req.params.id);
+  if (!post) return res.sendStatus(404);
+
+  return res.contentType("application/activity+json").json({
+    ...post,
+    id: `${actor}/posts/${req.params.id}`,
   });
 });

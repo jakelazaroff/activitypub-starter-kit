@@ -9,7 +9,7 @@ Although you can use Dumbo in production as-is, it’s really meant to be a star
 - Automatically post if your website goes down.
 - Whatever you can dream up!￼
 
-Dumbo is easy to extend — built on Express and lovingly commented, with only a few dependencies.
+Dumbo is easy to extend — built on Express with only a few dependencies.
 
 ## Local Development
 
@@ -46,8 +46,10 @@ For example, you could send a POST request containing the following body:
 
 ```json
 {
-  "type": "Note",
-  "content": "Lorem ipsum dolor sit amet."
+  "object": {
+    "type": "Note",
+    "content": "Lorem ipsum dolor sit amet."
+  }
 }
 ```
 
@@ -61,7 +63,7 @@ For example, you could send a POST request containing the following body:
     "id": "https://example.com/@alice/outbox/123",
     "type": "Note",
     "attributedTo": "https://example.com/@alice",
-  "content": "Lorem ipsum dolor sit amet."
+    "content": "Lorem ipsum dolor sit amet.",
     "published": "2022-12-34T12:34:56Z",
     "to": ["https://example.org/bob"],
     "cc": [

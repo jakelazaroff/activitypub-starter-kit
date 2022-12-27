@@ -2,15 +2,36 @@ import crypto from "node:crypto";
 
 import type { Request } from "express";
 import fetch from "node-fetch";
+import { assert } from "superstruct";
 
 import { PRIVATE_KEY } from "./env.js";
+import { Actor } from "./types.js";
 
+/** Fetches and returns an actor at a URL. */
+async function fetchActor(url: string) {
+  const res = await fetch(url, {
+    headers: { accept: "application/activity+json" },
+  });
+
+  if (res.status < 200 || 299 < res.status)
+    throw new Error(`Received ${res.status} fetching actor.`);
+
+  const body = await res.json();
+  assert(body, Actor);
+
+  return body;
+}
+
+/** Sends a signed message from the sender to the recipient.
+ * @param sender The sender's actor URL.
+ * @param recipient The recipient's actor URL.
+ * @param message the body of the request to send.
+ */
 export async function send(sender: string, recipient: string, message: object) {
   const url = new URL(recipient);
 
-  // TODO: support arbitrary inbox URLs
-  const inbox = recipient + "/inbox";
-  const fragment = inbox.replace("https://" + url.hostname, "");
+  const actor = await fetchActor(recipient);
+  const fragment = actor.inbox.replace("https://" + url.hostname, "");
   const body = JSON.stringify(message);
   const digest = crypto.createHash("sha256").update(body).digest("base64");
   const d = new Date();
@@ -26,7 +47,7 @@ export async function send(sender: string, recipient: string, message: object) {
     .sign("sha256", Buffer.from(data), key)
     .toString("base64");
 
-  const res = await fetch(inbox, {
+  const res = await fetch(actor.inbox, {
     method: "POST",
     headers: {
       host: url.hostname,
@@ -42,12 +63,14 @@ export async function send(sender: string, recipient: string, message: object) {
   if (res.status < 200 || 299 < res.status) {
     throw new Error(res.statusText + ": " + (await res.text()));
   }
+
+  return res;
 }
 
 /** Verifies that a request came from an actor.
  * Returns the actor's ID if the verification succeeds; throws otherwise.
  * @param req An Express request.
- * @returns The actor's ID.  */
+ * @returns The actor's ID. */
 export async function verify(req: Request): Promise<string> {
   // get headers included in signature
   const included: Record<string, string> = {};
@@ -70,6 +93,7 @@ export async function verify(req: Request): Promise<string> {
   const signature = Buffer.from(included.signature ?? "", "base64");
   if (!signature) throw new Error(`Missing "signature" in signature header.`);
 
+  // ensure that the digest header matches the digest of the body
   const digestHeader = req.get("digest");
   if (digestHeader) {
     const digestBody = crypto
@@ -81,16 +105,9 @@ export async function verify(req: Request): Promise<string> {
     }
   }
 
-  // fetch the actor document
-  const res = await fetch(keyId, {
-    headers: { accept: "application/activity+json" },
-  });
-  if (res.status < 200 || 299 < res.status) {
-    throw new Error(`Received ${res.status} fetching actor.`);
-  }
-
   // get the actor's public key
-  const actor: any = await res.json();
+  const actor = await fetchActor(keyId);
+  if (!actor.publicKey) throw new Error("No public key found.");
   const key = crypto.createPublicKey(actor.publicKey.publicKeyPem);
 
   // reconstruct the signed header string

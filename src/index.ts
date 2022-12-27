@@ -1,23 +1,24 @@
 import express from "express";
+import morgan from "morgan";
 
 import { HOSTNAME, ACCOUNT } from "./env.js";
 import { activitypub } from "./activitypub.js";
+import { admin } from "./admin.js";
 
 const app = express();
 const port = 3000;
+
+app.set("actor", `https://${HOSTNAME}/${ACCOUNT}`);
 
 app.use(
   express.text({ type: ["application/json", "application/activity+json"] })
 );
 
-app.use((req, res, next) => {
-  const start = performance.now();
-  next();
-  const ms = Math.round(performance.now() - start);
-  console.log(`${req.method} ${req.path} ${res.statusCode} - ${ms} ms`);
-});
+app.use(morgan("tiny"));
 
 app.get("/.well-known/webfinger", async (req, res) => {
+  const actor: string = req.app.get("actor");
+
   const resource = req.query.resource;
   if (resource !== `acct:${ACCOUNT}@${HOSTNAME}`) return res.sendStatus(404);
 
@@ -27,13 +28,13 @@ app.get("/.well-known/webfinger", async (req, res) => {
       {
         rel: "self",
         type: "application/activity+json",
-        href: `https://${HOSTNAME}/@${ACCOUNT}`,
+        href: actor,
       },
     ],
   });
 });
 
-app.use(activitypub);
+app.use("/admin", admin).use(activitypub);
 
 app.listen(port, () => {
   console.log(`Dumbo listening on port ${port}…`);
