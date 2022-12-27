@@ -15,7 +15,7 @@ Dumbo is easy to extend — built on Express with only a few dependencies.
 
 ￼First, copy the `.env.default` file as `.env` and fill out the missing variables:
 
-- `ACCOUNT` is the account name (the “alice” part of `https://example.com/@alice`).
+- `ACCOUNT` is the account name (the “alice” part of `https://example.com/alice`).
 - `HOSTNAME` is the domain at which other servers will be able to find yours on the public internet (the “example.com” part of `@name@example.com`).
 
 Once you have the `.env` file filled out, just run `npm dev` and you’re off to the races!
@@ -53,30 +53,41 @@ For example, you could send a POST request containing the following body:
 }
 ```
 
+That will add this activity to your outbox:
+
 ```json
 {
   "@context": "https://www.w3.org/ns/activitystreams",
   "type": "Create",
-  "id": "https://example.com/@alice/outbox/123?create=true",
-  "actor": "https://example.com/@alice",
+  "id": "https://example.com/alice/post/123",
+  "actor": "https://example.com/alice",
+  "published": "2022-12-34T12:34:56Z",
+  "to": ["https://www.w3.org/ns/activitystreams#Public"],
+  "cc": ["https://example.com/alice/followers"],
   "object": {
-    "id": "https://example.com/@alice/outbox/123",
+    "id": "https://example.com/alice/post/456",
     "type": "Note",
-    "attributedTo": "https://example.com/@alice",
+    "attributedTo": "https://example.com/alice",
     "content": "Lorem ipsum dolor sit amet.",
     "published": "2022-12-34T12:34:56Z",
-    "to": ["https://example.org/bob"],
-    "cc": [
-      "https://example.com/@alice/followers",
-      "https://www.w3.org/ns/activitystreams#Public"
-    ]
-  },
-  "published": "2022-12-34T12:34:56Z",
-  "to": ["https://example.org/bob"],
-  "cc": [
-    "https://example.com/@alice/followers",
-    "https://www.w3.org/ns/activitystreams#Public"
-  ]
+    "to": ["https://www.w3.org/ns/activitystreams#Public"],
+    "cc": ["https://example.com/alice/followers"]
+  }
+}
+```
+
+In addition, it will send this activity to each of your followers, with the top-level `cc` array replaced with their inbox address.
+
+Dumbo provides sensible defaults for everything in the `Create` activity outside of the `object` property, but you can override them by supplying those properties alongside `object`. For example, if you wanted to backdate a post, you could supply your own `published` date:
+
+```json
+{
+  "published": "2019-12-34T12:34:56Z",
+  "object": {
+    "type": "Note",
+    "content": "Lorem ipsum dolor sit amet.",
+    "published": "2019-12-34T12:34:56Z"
+  }
 }
 ```
 

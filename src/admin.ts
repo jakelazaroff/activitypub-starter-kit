@@ -51,12 +51,6 @@ admin.post("/create", async (req, res) => {
   });
 
   for (const follower of listFollowers()) {
-    console.log({
-      ...activity.contents,
-      id: `${actor}/post/${activity.id}`,
-      cc: [follower.actor],
-    });
-
     send(actor, follower.actor, {
       ...activity.contents,
       id: `${actor}/post/${activity.id}`,
