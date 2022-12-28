@@ -115,7 +115,7 @@ export async function verify(req: Request): Promise<string> {
     .split(" ")
     .map((header) => {
       if (header === "(request-target)")
-        return "(request-target): post " + req.path;
+        return "(request-target): post " + req.baseUrl + req.path;
       return `${header}: ${req.get(header)}`;
     })
     .join("\n");
