@@ -103,3 +103,5 @@ When you deploy a real server on the public internet, there are a few more envir
 
 - `PUBLIC_KEY` and `PRIVATE_KEY` make up the key pair that your server will use to prove that it’s really making requests that appear to come from your domain. This prevents other servers from impersonating you!
 - `ADMIN_USERNAME` and `ADMIN_PASSWORD` prevent intruders from accessing the admin endpoints. You’ll need to supply these credentials using [HTTP basic authentication](https://swagger.io/docs/specification/2-0/authentication/basic-authentication/).
+
+If you need help creating a key pair, [here's a guide on how to do it](https://stackoverflow.com/a/44474607).
