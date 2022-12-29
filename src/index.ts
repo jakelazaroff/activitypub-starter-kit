@@ -1,12 +1,11 @@
 import express from "express";
 import morgan from "morgan";
 
-import { HOSTNAME, ACCOUNT } from "./env.js";
+import { ACCOUNT, HOSTNAME, PORT } from "./env.js";
 import { activitypub } from "./activitypub.js";
 import { admin } from "./admin.js";
 
 const app = express();
-const port = 3000;
 
 app.set("actor", `https://${HOSTNAME}/${ACCOUNT}`);
 
@@ -36,6 +35,6 @@ app.get("/.well-known/webfinger", async (req, res) => {
 
 app.use("/admin", admin).use(activitypub);
 
-app.listen(port, () => {
-  console.log(`Dumbo listening on port ${port}…`);
+app.listen(PORT, () => {
+  console.log(`Dumbo listening on port ${PORT}…`);
 });

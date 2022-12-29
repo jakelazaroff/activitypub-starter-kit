@@ -4,10 +4,13 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-export const SCHEMA_PATH = process.env.SCHEMA_PATH || "";
-export const DATABASE_PATH = process.env.DATABASE_PATH || "";
-export const HOSTNAME = process.env.HOSTNAME || "";
+export const PORT = process.env.PORT || "3000";
+
 export const ACCOUNT = process.env.ACCOUNT || "";
+export const HOSTNAME = process.env.HOSTNAME || "";
+
+export const DATABASE_PATH = process.env.DATABASE_PATH || "";
+export const SCHEMA_PATH = process.env.SCHEMA_PATH || "";
 
 // in development, generate a key pair to make it easier to get started
 const keypair =
