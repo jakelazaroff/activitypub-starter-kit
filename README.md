@@ -1,15 +1,15 @@
-# Dumbo
+# ActivityPub Starter Kit
 
 A tiny, single user ActivityPub server.
 
-Although you can use Dumbo in production as-is, it’s really meant to be a starting point for your own ActivityPub projects. Here, some ideas to get you going:
+Although you can use this in production as-is, it’s really meant to be a starting point for your own ActivityPub projects. Here, some ideas to get you going:
 
 - Allow people to follow your blog on Mastodon.
 - Follow accounts and save links they post to a reading list.
 - Automatically post if your website goes down.
 - Whatever you can dream up!￼
 
-Dumbo is easy to extend — built on Express with only a few dependencies.
+ActivityPub Stater Kit is easy to extend — built on Express with only a few dependencies.
 
 ## Local Development
 
@@ -36,11 +36,11 @@ To find your account in another Fediverse app such as Mastodon, search for your 
 
 ## Doing Stuff
 
-Dumbo doesn’t have a GUI — although you could make one! Instead, there’s an API that you can use. The activities that Dumbo supports are posting and following/unfollowing.
+ActivityPub Starter Kit doesn’t have a GUI — although you could make one! Instead, there’s an API that you can use. The activities that it supports are posting and following/unfollowing.
 
 ### Posting
 
-`POST /admin/create` adds a [`Create` activity](https://www.w3.org/TR/activitypub/#create-activity-outbox) to your outbox and notifies all your followers. The request body must be JSON and is used as the activity `object`. The only required field is `type`. You can omit fields that Dumbo already knows, such as `@context`, `attributedTo`, `published` and `cc`.
+`POST /admin/create` adds a [`Create` activity](https://www.w3.org/TR/activitypub/#create-activity-outbox) to your outbox and notifies all your followers. The request body must be JSON and is used as the activity `object`. The only required field is `type`. You can omit fields that the server already knows, such as `@context`, `attributedTo`, `published` and `cc`.
 
 For example, you could send a POST request containing the following body:
 
@@ -78,7 +78,7 @@ That will add this activity to your outbox:
 
 In addition, it will send this activity to each of your followers, with the top-level `cc` array replaced with their inbox address.
 
-Dumbo provides sensible defaults for everything in the `Create` activity outside of the `object` property, but you can override them by supplying those properties alongside `object`. For example, if you wanted to backdate a post, you could supply your own `published` date:
+ActivityPub Starter Kit provides sensible defaults for everything in the `Create` activity outside of the `object` property, but you can override them by supplying those properties alongside `object`. For example, if you wanted to backdate a post, you could supply your own `published` date:
 
 ```json
 {
