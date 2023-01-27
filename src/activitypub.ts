@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 
 import { Router } from "express";
+import WebSocket from 'ws';
 
 import {
   createFollower,
@@ -96,6 +97,13 @@ activitypub.post("/:actor/inbox", async (req, res) => {
       break;
     }
   }
+
+  // Notify listening websockets of new activity
+  req.app.get("wss").clients.forEach(function each(client: WebSocket) {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(req.body, { binary: false });
+    }
+  });
 
   return res.sendStatus(204);
 });
