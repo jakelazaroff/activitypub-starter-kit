@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+export const WEBHOOK_PATH = process.env.WEBHOOK_PATH || "webhook";
 export const FDQN = process.env.FDQN || null;
 export const PROTO = process.env.PROTO || "https";
 export const PORT = process.env.PORT || "3000";

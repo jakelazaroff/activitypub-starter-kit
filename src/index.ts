@@ -4,6 +4,7 @@ import morgan from "morgan";
 import { ACCOUNT, HOSTNAME, PORT, PROTO, FDQN } from "./env.js";
 import { activitypub } from "./activitypub.js";
 import { admin } from "./admin.js";
+import { webhook } from "./webhook.js";
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.get("/.well-known/webfinger", async (req, res) => {
 });
 
 app.use("/admin", admin).use(activitypub);
+app.use("/webhook", webhook);
 
 app.listen(PORT, () => {
   console.log(`Dumbo listening on port ${PORT}…`);
