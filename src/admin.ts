@@ -4,7 +4,7 @@ import { is, omit, type } from "superstruct";
 import { Router } from "express";
 import basicAuth from "express-basic-auth";
 
-import { ADMIN_PASSWORD, ADMIN_USERNAME, HOSTNAME } from "./env.js";
+import { ADMIN_PASSWORD, ADMIN_USERNAME, HOSTNAME, PORT, PROTO, FDQN } from "./env.js";
 import {
   createFollowing,
   createPost,
@@ -61,11 +61,14 @@ admin.post("/create", async (req, res) => {
   return res.sendStatus(204);
 });
 
-admin.post("/follow/:actor", async (req, res) => {
+admin.post("/follow/:actor/:hostname/:port/:proto", async (req, res) => {
   const actor: string = req.app.get("actor");
 
-  const object = req.params.actor;
-  const uri = `https://${HOSTNAME}/@${crypto.randomUUID()}`;
+  const object = (({ proto, hostname, port, actor }) => {
+    return `${proto}://${hostname}:${port}/${actor}`;
+  })(req.params);
+  const endpoint: string = (FDQN != null ? FDQN: `${HOSTNAME}:${PORT}`);
+  const uri = `${PROTO}://${endpoint}/@${crypto.randomUUID()}`;
   await send(actor, object, {
     "@context": "https://www.w3.org/ns/activitystreams",
     id: uri,

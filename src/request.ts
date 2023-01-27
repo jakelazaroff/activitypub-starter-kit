@@ -31,7 +31,7 @@ export async function send(sender: string, recipient: string, message: object) {
   const url = new URL(recipient);
 
   const actor = await fetchActor(recipient);
-  const fragment = actor.inbox.replace("https://" + url.hostname, "");
+  const fragment = url.pathname + "/inbox";
   const body = JSON.stringify(message);
   const digest = crypto.createHash("sha256").update(body).digest("base64");
   const d = new Date();

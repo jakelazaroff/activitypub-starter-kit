@@ -11,7 +11,7 @@ import {
   listPosts,
   updateFollowing,
 } from "./db.js";
-import { HOSTNAME, ACCOUNT, PUBLIC_KEY } from "./env.js";
+import { HOSTNAME, PORT, ACCOUNT, PUBLIC_KEY, PROTO, FDQN } from "./env.js";
 import { send, verify } from "./request.js";
 
 export const activitypub = Router();
@@ -59,11 +59,14 @@ activitypub.post("/:actor/inbox", async (req, res) => {
   // ensure that the verified actor matches the actor in the request body
   if (from !== body.actor) return res.sendStatus(401);
 
+  const endpoint: string = (FDQN != null ? FDQN: `${HOSTNAME}:${PORT}`);
+  const uri = `${PROTO}://${endpoint}/${crypto.randomUUID()}`;
+
   switch (body.type) {
     case "Follow": {
       await send(actor, body.actor, {
         "@context": "https://www.w3.org/ns/activitystreams",
-        id: `https://${HOSTNAME}/${crypto.randomUUID()}`,
+        id: uri,
         type: "Accept",
         actor,
         object: body,
