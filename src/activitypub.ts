@@ -11,7 +11,7 @@ import {
   listPosts,
   updateFollowing,
 } from "./db.js";
-import { HOSTNAME, ACCOUNT, PUBLIC_KEY } from "./env.js";
+import { HOSTNAME, PORT, ACCOUNT, PUBLIC_KEY } from "./env.js";
 import { send, verify } from "./request.js";
 
 export const activitypub = Router();
@@ -63,7 +63,7 @@ activitypub.post("/:actor/inbox", async (req, res) => {
     case "Follow": {
       await send(actor, body.actor, {
         "@context": "https://www.w3.org/ns/activitystreams",
-        id: `https://${HOSTNAME}/${crypto.randomUUID()}`,
+        id: `http://${HOSTNAME}:${PORT}/${crypto.randomUUID()}`,
         type: "Accept",
         actor,
         object: body,

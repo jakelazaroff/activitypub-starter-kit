@@ -7,6 +7,7 @@ import { assert } from "superstruct";
 import { PRIVATE_KEY } from "./env.js";
 import { Actor } from "./types.js";
 
+
 /** Fetches and returns an actor at a URL. */
 async function fetchActor(url: string) {
   const res = await fetch(url, {
@@ -31,7 +32,7 @@ export async function send(sender: string, recipient: string, message: object) {
   const url = new URL(recipient);
 
   const actor = await fetchActor(recipient);
-  const fragment = actor.inbox.replace("https://" + url.hostname, "");
+  const fragment = url.pathname + "/inbox";
   const body = JSON.stringify(message);
   const digest = crypto.createHash("sha256").update(body).digest("base64");
   const d = new Date();
@@ -46,6 +47,7 @@ export async function send(sender: string, recipient: string, message: object) {
   const signature = crypto
     .sign("sha256", Buffer.from(data), key)
     .toString("base64");
+  console.log(`crypto.sign("sha256", data: ${data}, key: ${key}, signature: ${signature})`);
 
   const res = await fetch(actor.inbox, {
     method: "POST",
@@ -119,6 +121,7 @@ export async function verify(req: Request): Promise<string> {
       return `${header}: ${req.get(header)}`;
     })
     .join("\n");
+  console.log(`crypto.verify("sha256", data: ${comparison}, key: ${key}, signature: ${included.signature})`);
   const data = Buffer.from(comparison);
 
   // verify the signature against the headers using the actor's public key

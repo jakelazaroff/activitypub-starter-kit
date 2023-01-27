@@ -7,7 +7,7 @@ import { admin } from "./admin.js";
 
 const app = express();
 
-app.set("actor", `https://${HOSTNAME}/${ACCOUNT}`);
+app.set("actor", `http://${HOSTNAME}:${PORT}/${ACCOUNT}`);
 
 app.use(
   express.text({ type: ["application/json", "application/activity+json"] })

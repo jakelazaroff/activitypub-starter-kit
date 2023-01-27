@@ -4,7 +4,7 @@ import { is, omit, type } from "superstruct";
 import { Router } from "express";
 import basicAuth from "express-basic-auth";
 
-import { ADMIN_PASSWORD, ADMIN_USERNAME, HOSTNAME } from "./env.js";
+import { ADMIN_PASSWORD, ADMIN_USERNAME, HOSTNAME, PORT } from "./env.js";
 import {
   createFollowing,
   createPost,
@@ -61,16 +61,21 @@ admin.post("/create", async (req, res) => {
   return res.sendStatus(204);
 });
 
-admin.post("/follow/:actor", async (req, res) => {
-  const actor: string = req.app.get("actor");
 
-  const object = req.params.actor;
-  const uri = `https://${HOSTNAME}/@${crypto.randomUUID()}`;
-  await send(actor, object, {
+admin.post("/follow/:actor/:hostname/:port/:proto", async (req, res) => {
+  const our_actor: string = req.app.get("actor");
+  console.log(`Follow endpoint, our actor: ${our_actor}`)
+
+  const { proto, hostname, port, actor } = req.params;
+  const object = `${proto}://${hostname}:${port}/${actor}`;
+  console.log(`Follow endpoint, object: ${object}`)
+  const uri = `http://${HOSTNAME}:${PORT}/@${crypto.randomUUID()}`;
+  console.log(`Follow endpoint, uri: ${uri}`)
+  await send(our_actor, object, {
     "@context": "https://www.w3.org/ns/activitystreams",
     id: uri,
     type: "Follow",
-    actor,
+    actor: our_actor,
     object,
   });
 
