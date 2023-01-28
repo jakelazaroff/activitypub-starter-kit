@@ -38,13 +38,13 @@ webhook.post(`/${WEBHOOK_PATH}`, async (req, res) => {
     to: ["https://www.w3.org/ns/activitystreams#Public"],
     cc: [`${actor}/followers`],
     ...body,
-    object: { ...object.contents, id: `${actor}/post/${object.id}` },
+    object: { ...object.contents, id: `${actor}/posts/${object.id}` },
   });
 
   for (const follower of listFollowers()) {
     send(actor, follower.actor, {
       ...activity.contents,
-      id: `${actor}/post/${activity.id}`,
+      id: `${actor}/posts/${activity.id}`,
       cc: [follower.actor],
     });
   }
