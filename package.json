@@ -1,6 +1,6 @@
 {
   "name": "activitypub-starter-kit.rg-wood",
-  "version": "1.0.0.RC1",
+  "version": "1.0.0-rc1",
   "description": "",
   "main": "./build/app.js",
   "types": "./build/app.d.ts",
