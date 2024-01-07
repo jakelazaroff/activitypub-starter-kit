@@ -58,7 +58,7 @@ admin.post("/create", async (req, res) => {
     });
   }
 
-  return res.sendStatus(204);
+  return res.send(JSON.stringify(activity));
 });
 
 admin.post("/follow/:actor", async (req, res) => {
