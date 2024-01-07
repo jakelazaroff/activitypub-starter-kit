@@ -1,11 +1,12 @@
 {
   "name": "activitypub-starter-kit.rg-wood",
-  "version": "1.0.0-rc2",
+  "version": "1.0.0-rc3",
   "description": "",
   "main": "./build/app.js",
   "types": "./build/app.d.ts",
   "files": [
-    "/build"
+    "/build",
+    "/db"
   ],
   "scripts": {
     "dev": "ts-node --esm src/index.ts",
