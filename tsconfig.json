@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "lib": ["esnext", "dom"],
+    "lib": [
+      "esnext"
+    ],
     "skipLibCheck": true,
 
     // build options
@@ -9,9 +11,8 @@
     "outDir": "build",
 
     // module resolution
-    "module": "esnext",
+    "module": "commonjs",
     "moduleResolution": "node",
-    "isolatedModules": true,
 
     // ecmascript features
     "downlevelIteration": true,
@@ -19,16 +20,21 @@
 
     // strict typechecking
     "strict": true,
+    "sourceMap": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "importsNotUsedAsValues": "error",
     "forceConsistentCasingInFileNames": true,
-    "noUncheckedIndexedAccess": true
+    "noUncheckedIndexedAccess": true,
+    "declaration": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules"]
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
