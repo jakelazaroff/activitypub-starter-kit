@@ -1,13 +1,13 @@
 import express from "express";
 import morgan from "morgan";
 
-import { ACCOUNT, HOSTNAME, PORT } from "./env.js";
+import { ACCOUNT, HOSTNAME, PORT, PROTOCOL } from "./env.js";
 import { activitypub } from "./activitypub.js";
 import { admin } from "./admin.js";
 
 const app = express();
 
-app.set("actor", `https://${HOSTNAME}/${ACCOUNT}`);
+app.set("actor", `${PROTOCOL}://${HOSTNAME}/${ACCOUNT}`);
 
 app.use(
   express.text({ type: ["application/json", "application/activity+json"] })
