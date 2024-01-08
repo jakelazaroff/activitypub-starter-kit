@@ -106,17 +106,17 @@ When you deploy a real server on the public internet, there are a few more envir
 
 If you need help creating a key pair, [here's a guide on how to do it](https://stackoverflow.com/a/44474607).
 
-## Testing
+## Integration Test Harness
 
-The kit can be used to stand up a test server for client integration testing. To install it execute the following in your client project:
+The kit can be used to stand up a test server for client integration testing. To install, execute the following in your client project:
 
-```sh 
+```sh
 npm i -D activitypub-starter-kit
 ```
 
 Then, you can setup a test instance with something like the following snippet:
 
-```
+```js
 const app = ActivityPubApp.testApp();
 
 app.start();
@@ -124,7 +124,7 @@ app.start();
 // ... tests
 
 // cleanup
-app.stop()
+app.stop();
 ```
 
 This will start a test instance on `http://localhost:3000`.
