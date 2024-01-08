@@ -127,4 +127,4 @@ app.start();
 app.stop();
 ```
 
-This will start a test instance on `http://localhost:3000`.
+This will configure, start and shutdown a test instance on `http://localhost:3000`.
