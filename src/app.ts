@@ -5,41 +5,50 @@ import { ActivityPub } from "./activitypub.js";
 import { Admin } from "./admin.js";
 import { Db } from "./db.js";
 
+interface ActivityPubAppConfig {
+  account: string;
+  protocol: string;
+  host: string;
+  port: number;
+  database: string;
+  schema: string;
+  publicKey?: string | Buffer;
+  privateKey?: string | Buffer;
+  username?: string;
+  password?: string;
+}
+
 export class ActivityPubApp {
   private readonly app = express();
-  private readonly account: string;
-  private readonly protocol: string;
-  private readonly hostname: string;
-  private readonly port: string;
   private readonly activitypub;
   private readonly admin;
   private server: http.Server;
 
-  constructor(
-    account: string,
-    protocol: string,
-    hostname: string,
-    port: string,
-    database: string,
-    schema: string,
-    publicKey: string | Buffer,
-    privateKey: string | Buffer,
-    username?: string,
-    password?: string,
-  ) {
-    this.account = account;
-    this.protocol = protocol;
-    this.hostname = hostname;
-    this.port = port;
-    const db = new Db(database, schema);
+  readonly account: string;
+  readonly protocol: string;
+  readonly host: string;
+  readonly port: number;
+
+  constructor(config: ActivityPubAppConfig) {
+    this.account = config.account;
+    this.protocol = config.protocol;
+    this.host = config.host;
+    this.port = config.port;
+    const db = new Db(config.database, config.schema);
     this.activitypub = new ActivityPub(
       db,
-      account,
-      hostname,
-      publicKey,
-      privateKey,
+      config.account,
+      config.host,
+      config.publicKey || "",
+      config.privateKey || "",
     );
-    this.admin = new Admin(db, hostname, privateKey, username, password);
+    this.admin = new Admin(
+      db,
+      config.host,
+      config.privateKey || "",
+      config.username,
+      config.password,
+    );
 
     this.server = this.app.listen(this.port, () => {
       console.log(`Dumbo listening on port ${this.port}…`);
@@ -47,10 +56,7 @@ export class ActivityPubApp {
   }
 
   start(): void {
-    this.app.set(
-      "actor",
-      `${this.protocol}://${this.hostname}/${this.account}`,
-    );
+    this.app.set("actor", `${this.protocol}://${this.host}/${this.account}`);
 
     this.app.use(
       express.text({ type: ["application/json", "application/activity+json"] }),
@@ -62,11 +68,11 @@ export class ActivityPubApp {
       const actor: string = req.app.get("actor");
 
       const resource = req.query.resource;
-      if (resource !== `acct:${this.account}@${this.hostname}`)
+      if (resource !== `acct:${this.account}@${this.host}`)
         return res.sendStatus(404);
 
       return res.contentType("application/activity+json").json({
-        subject: `acct:${this.account}@${this.hostname}`,
+        subject: `acct:${this.account}@${this.host}`,
         links: [
           {
             rel: "self",
@@ -82,5 +88,18 @@ export class ActivityPubApp {
 
   stop() {
     this.server.close();
+  }
+
+  static testApp(): ActivityPubApp {
+    const config = {
+      account: "test",
+      protocol: "http",
+      host: "localhost:3000",
+      port: 3000,
+      database: "./database.sqlite3",
+      schema: "./node_modules/activitypub-starter-kit.rg-wood/db/schema.sql",
+    };
+
+    return new ActivityPubApp(config);
   }
 }

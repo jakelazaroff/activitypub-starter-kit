@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-export const PORT = process.env.PORT || "3000";
+export const PORT = parseInt(process.env.PORT || "3000");
 
 export const ACCOUNT = process.env.ACCOUNT || "";
 export const PROTOCOL = process.env.PROTOCOL || "https";
