@@ -117,6 +117,26 @@ export class ActivityPub {
       return res.sendStatus(204);
     });
 
+    activitypub.get("/api/v1/accounts/:actor/statuses", async (req, res) => {
+      if (req.params.actor !== this.account) return res.sendStatus(404);
+
+      const posts = this.db
+        .listPosts()
+        .filter(
+          (post) => "type" in post.contents && post.contents.type === "Create",
+        );
+
+      const json =
+        posts.map((post) => {
+          const { object } = post.contents as { object: any };
+          return Object.assign(object, {
+            created_at: post.createdAt.toISOString()
+          })
+        });
+
+      return res.contentType("application/json").json(json);
+    });
+
     activitypub.get("/:actor/followers", async (req, res) => {
       const actor: string = req.app.get("actor");
 
@@ -178,6 +198,31 @@ export class ActivityPub {
     });
 
     activitypub.get("/:actor", async (req, res) => {
+      const actor: string = req.app.get("actor");
+
+      if (req.params.actor !== this.account) return res.sendStatus(404);
+
+      return res.contentType("application/activity+json").json({
+        "@context": [
+          "https://www.w3.org/ns/activitystreams",
+          "https://w3id.org/security/v1",
+        ],
+        id: actor,
+        type: "Person",
+        preferredUsername: this.account,
+        inbox: `${actor}/inbox`,
+        outbox: `${actor}/outbox`,
+        followers: `${actor}/followers`,
+        following: `${actor}/following`,
+        publicKey: {
+          id: `${actor}#main-key`,
+          owner: actor,
+          publicKeyPem: this.publicKey,
+        },
+      });
+    });
+
+    activitypub.get("/api/v1/accounts/:actor", async (req, res) => {
       const actor: string = req.app.get("actor");
 
       if (req.params.actor !== this.account) return res.sendStatus(404);
