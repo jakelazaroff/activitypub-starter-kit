@@ -4,6 +4,7 @@ import http from "http";
 import { ActivityPub } from "./activitypub.js";
 import { Admin } from "./admin.js";
 import { Db } from "./db.js";
+import { Mastodon } from "./mastodon.js";
 
 interface ActivityPubAppConfig {
   account: string;
@@ -22,6 +23,7 @@ export class ActivityPubApp {
   private readonly app = express();
   private readonly activitypub;
   private readonly admin;
+  private readonly mastodon;
   private server: http.Server;
 
   readonly account: string;
@@ -49,6 +51,7 @@ export class ActivityPubApp {
       config.username,
       config.password,
     );
+    this.mastodon = new Mastodon(db, config.account)
 
     this.server = this.app.listen(this.port, () => {
       console.log(`Dumbo listening on port ${this.port}…`);
@@ -84,6 +87,7 @@ export class ActivityPubApp {
     });
 
     this.app.use("/admin", this.admin.router()).use(this.activitypub.router());
+    this.app.use("/api/v1", this.mastodon.router()).use(this.activitypub.router());
   }
 
   stop() {
