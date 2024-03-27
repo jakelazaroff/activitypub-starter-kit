@@ -1,40 +1,28 @@
-import express from "express";
-import morgan from "morgan";
+import { ActivityPubApp } from "./app.js";
 
-import { ACCOUNT, HOSTNAME, PORT } from "./env.js";
-import { activitypub } from "./activitypub.js";
-import { admin } from "./admin.js";
+import {
+  ACCOUNT,
+  HOSTNAME,
+  PORT,
+  PROTOCOL,
+  DATABASE_PATH,
+  SCHEMA_PATH,
+  PUBLIC_KEY,
+  PRIVATE_KEY,
+  ADMIN_USERNAME,
+  ADMIN_PASSWORD,
+} from "./env.js";
 
-const app = express();
-
-app.set("actor", `https://${HOSTNAME}/${ACCOUNT}`);
-
-app.use(
-  express.text({ type: ["application/json", "application/activity+json"] })
-);
-
-app.use(morgan("tiny"));
-
-app.get("/.well-known/webfinger", async (req, res) => {
-  const actor: string = req.app.get("actor");
-
-  const resource = req.query.resource;
-  if (resource !== `acct:${ACCOUNT}@${HOSTNAME}`) return res.sendStatus(404);
-
-  return res.contentType("application/activity+json").json({
-    subject: `acct:${ACCOUNT}@${HOSTNAME}`,
-    links: [
-      {
-        rel: "self",
-        type: "application/activity+json",
-        href: actor,
-      },
-    ],
-  });
+const app = new ActivityPubApp({
+  account: ACCOUNT,
+  protocol: PROTOCOL,
+  host: HOSTNAME,
+  port: PORT,
+  database: DATABASE_PATH,
+  schema: SCHEMA_PATH,
+  publicKey: PUBLIC_KEY,
+  privateKey: PRIVATE_KEY,
+  username: ADMIN_USERNAME,
+  password: ADMIN_PASSWORD,
 });
-
-app.use("/admin", admin).use(activitypub);
-
-app.listen(PORT, () => {
-  console.log(`Dumbo listening on port ${PORT}…`);
-});
+app.start();

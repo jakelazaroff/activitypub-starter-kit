@@ -105,3 +105,26 @@ When you deploy a real server on the public internet, there are a few more envir
 - `ADMIN_USERNAME` and `ADMIN_PASSWORD` prevent intruders from accessing the admin endpoints. You’ll need to supply these credentials using [HTTP basic authentication](https://swagger.io/docs/specification/2-0/authentication/basic-authentication/).
 
 If you need help creating a key pair, [here's a guide on how to do it](https://stackoverflow.com/a/44474607).
+
+## Integration Test Harness
+
+The kit can be used to stand up a test server for client integration testing. To install, execute the following in your client project:
+
+```sh
+npm i -D activitypub-starter-kit
+```
+
+Then, you can setup a test instance with something like the following snippet:
+
+```js
+const app = ActivityPubApp.testApp();
+
+app.start();
+
+// ... tests
+
+// cleanup
+app.stop();
+```
+
+This will configure, start and shutdown a test instance on `http://localhost:3000`.

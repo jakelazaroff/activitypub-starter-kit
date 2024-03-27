@@ -1,10 +1,7 @@
 import crypto from "node:crypto";
 
 import type { Request } from "express";
-import fetch from "node-fetch";
 import { assert } from "superstruct";
-
-import { PRIVATE_KEY } from "./env.js";
 import { Actor } from "./types.js";
 
 /** Fetches and returns an actor at a URL. */
@@ -27,7 +24,12 @@ async function fetchActor(url: string) {
  * @param recipient The recipient's actor URL.
  * @param message the body of the request to send.
  */
-export async function send(sender: string, recipient: string, message: object) {
+export async function send(
+  sender: string,
+  recipient: string,
+  message: object,
+  privateKey: string | Buffer,
+) {
   const url = new URL(recipient);
 
   const actor = await fetchActor(recipient);
@@ -36,7 +38,7 @@ export async function send(sender: string, recipient: string, message: object) {
   const digest = crypto.createHash("sha256").update(body).digest("base64");
   const d = new Date();
 
-  const key = crypto.createPrivateKey(PRIVATE_KEY.toString());
+  const key = crypto.createPrivateKey(privateKey.toString());
   const data = [
     `(request-target): post ${fragment}`,
     `host: ${url.hostname}`,
